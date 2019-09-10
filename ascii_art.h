@@ -58,7 +58,7 @@ typedef struct tagASCIIArtAPI{
     /* set font to use */
     void (*setFont)(AsciiArt *art, const char *fontName);
 
-    /* render ascii-art. */
+    /* render ascii-art 'ascii' using 'color'. */
     /* spearate color using ','. e.g. "1, 2, 4" */
     int  (*render)(AsciiArt *art, const char *ascii, char *color);
 
@@ -66,7 +66,7 @@ typedef struct tagASCIIArtAPI{
     int  (*registFont)(AsciiArt *art,
                       int nRow, int nCol, 
                       int hasLower, /* not used */
-                      const char *chararr,
+                      const char *charArr,
                       const char ascii[]);
 
     /* IO: Load from file */

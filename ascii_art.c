@@ -40,7 +40,7 @@ typedef struct _mapInfo{
 struct _AsciiArt
 {
   char *fontName;
-  char *chararr;
+  char *charArr;
   char *ascii;
   int nRow, nCol;
   int hasLower;
@@ -99,7 +99,7 @@ static void initAsciiTable()
   asciiTable[0].nRow = 8;
   asciiTable[0].nCol = 8;
   asciiTable[0].hasLower = 0;
-  asciiTable[0].chararr = (char *)chararr_banner;
+  asciiTable[0].charArr = (char *)chararr_banner;
   asciiTable[0].ascii = (char *)banner_ascii;
   asciiTable[0].iLoad = 0;
 
@@ -107,7 +107,7 @@ static void initAsciiTable()
   asciiTable[1].nRow = 8;
   asciiTable[1].nCol = 14;
   asciiTable[1].hasLower = 1;
-  asciiTable[1].chararr = (char *)chararr_colossal;
+  asciiTable[1].charArr = (char *)chararr_colossal;
   asciiTable[1].ascii = (char *)colossal_ascii;
   asciiTable[1].iLoad = 0;
 
@@ -115,7 +115,7 @@ static void initAsciiTable()
   asciiTable[2].nRow = 8;
   asciiTable[2].nCol = 17;
   asciiTable[2].hasLower = 1;
-  asciiTable[2].chararr = (char *)chararr_univers;
+  asciiTable[2].charArr = (char *)chararr_univers;
   asciiTable[2].ascii = (char *)univers_ascii;
   asciiTable[2].iLoad = 0;
 
@@ -123,7 +123,7 @@ static void initAsciiTable()
   asciiTable[3].nRow = 4;
   asciiTable[3].nCol = 6;
   asciiTable[3].hasLower = 1;
-  asciiTable[3].chararr = (char *)chararr_bubble;
+  asciiTable[3].charArr = (char *)chararr_bubble;
   asciiTable[3].ascii = (char *)bubble_ascii;
   asciiTable[3].iLoad = 0;
 
@@ -131,7 +131,7 @@ static void initAsciiTable()
   asciiTable[4].nRow = 11;
   asciiTable[4].nCol = 20;
   asciiTable[4].hasLower = 0;
-  asciiTable[4].chararr = (char *)chararr_blocks;
+  asciiTable[4].charArr = (char *)chararr_blocks;
   asciiTable[4].ascii = (char *)blocks_ascii;
   asciiTable[4].iLoad = 0;
 
@@ -190,7 +190,7 @@ static AsciiArt *CreateWithFontName(const char *fontName)
 static int registFont(AsciiArt *art,
                       int nRow, int nCol,
                       int hasLower,
-                      const char *chararr,
+                      const char *charArr,
                       const char ascii[])
 {
   if (NULL == art) return 1;
@@ -204,7 +204,7 @@ static int registFont(AsciiArt *art,
   art->nRow = nRow;
   art->nCol = nCol;
   art->hasLower = hasLower;
-  art->chararr = (char *)chararr;
+  art->charArr = (char *)charArr;
   art->ascii = (char *)ascii;
 
   return 0;
@@ -218,14 +218,14 @@ static int getAsciiArt(AsciiArt *art, FILE *fp, int iDirection, long bufsize)
   int iLen, iTotalLine, iLineNo, iCheckLen;
   char artLine[4096]; /* enough ? */
 
-  iLen = (int)strlen(art->chararr);
+  iLen = (int)strlen(art->charArr);
 
   FREE(art->ascii);
   art->ascii = calloc(bufsize + 1, sizeof(char));
   if (NULL == art->ascii)
     {
       fprintf(stderr, "Malloc 'ascii' failed\n");
-      FREE(art->chararr);
+      FREE(art->charArr);
       return 1;
     }
 
@@ -274,7 +274,7 @@ static int getAsciiArt(AsciiArt *art, FILE *fp, int iDirection, long bufsize)
        if (NULL == buf)
          {
            fprintf(stderr, "Malloc 'ascii' failed\n");
-           FREE(art->chararr);
+           FREE(art->charArr);
            FREE(art->ascii);
            return 1;
          }
@@ -284,7 +284,7 @@ static int getAsciiArt(AsciiArt *art, FILE *fp, int iDirection, long bufsize)
       if (newLen == 0)
         {
           fprintf(stderr, "Error reading file");
-          FREE(art->chararr);
+          FREE(art->charArr);
           FREE(art->ascii);
           return 1;
         }
@@ -325,7 +325,7 @@ static int getProperties(AsciiArt *art, FILE *fp, long bufsize)
 
   char magic[8];
   char fontName[32];
-  char chararr[256];
+  char charArr[256];
   char properties[256];
 
   /* no need to checkk art pointer, because
@@ -385,50 +385,50 @@ static int getProperties(AsciiArt *art, FILE *fp, long bufsize)
       tmp = strtok(NULL, " ");
     } /* end while */
 
-  /* third line is chararr name.
+  /* third line is charArr name.
    * any value is ok, but do not duplicate.
    * value's length is number of chars.
    * */
-  memset(chararr, 0x00, sizeof(chararr));
+  memset(charArr, 0x00, sizeof(charArr));
   memset(properties, 0x00, sizeof(properties));
   fgets(properties, sizeof(properties), fp);
   properties[sizeof(properties) - 1] = '\0';
 
-  strncpy(chararr, properties, sizeof(chararr) - 1);
-  chararr[sizeof(chararr) - 1] = '\0';
+  strncpy(charArr, properties, sizeof(charArr) - 1);
+  charArr[sizeof(charArr) - 1] = '\0';
 
   /* remove trailing space */
-  iLen = (int)strlen(chararr);
+  iLen = (int)strlen(charArr);
   i = iLen;
   while(i > 0)
     {
-      if (' ' == chararr[i] || '\n' == chararr[i] || '\r' == chararr[i])
-          chararr[i] = '\0';
+      if (' ' == charArr[i] || '\n' == charArr[i] || '\r' == charArr[i])
+          charArr[i] = '\0';
       i--;
     } /* end while */
 
-  iLen = (int)strlen(chararr);
+  iLen = (int)strlen(charArr);
   if (0 == iLen || iLen != iTotalCount)
     {
       fprintf(stderr,
-          "file content invalid totalCharCount:[%d], chararr len:[%d]\n",
+          "file content invalid totalCharCount:[%d], charArr len:[%d]\n",
           iTotalCount, iLen);
       return 1;
     }
 
-  /* chararr */
-  FREE(art->chararr);
-  art->chararr = calloc(1, (iLen + 1) * sizeof(char));
-  if (NULL == art->chararr)
+  /* charArr */
+  FREE(art->charArr);
+  art->charArr = calloc(1, (iLen + 1) * sizeof(char));
+  if (NULL == art->charArr)
     {
-      fprintf(stderr, "Malloc 'chararr' failed\n");
+      fprintf(stderr, "Malloc 'charArr' failed\n");
       return 1;
     }
-  strcpy(art->chararr, chararr);
+  strcpy(art->charArr, charArr);
 
 
 #if 0
-  printf("chararr=[%s], len=[%d]\n", chararr, iLen);
+  printf("charArr=[%s], len=[%d]\n", charArr, iLen);
 #endif
 
   /* The left line is our ascii-art characters */
@@ -436,7 +436,7 @@ static int getProperties(AsciiArt *art, FILE *fp, long bufsize)
   if (0 != i)
     {
       FREE(art->ascii);
-      FREE(art->chararr);
+      FREE(art->charArr);
       return 1;
     }
 
@@ -448,7 +448,7 @@ static int getProperties(AsciiArt *art, FILE *fp, long bufsize)
     {
       fprintf(stderr, "Malloc 'fontName' failed\n");
       FREE(art->ascii);
-      FREE(art->chararr);
+      FREE(art->charArr);
 
       return 1;
     }
@@ -467,13 +467,13 @@ static void freeLoad(AsciiArt *art)
     {
       art->fontName = NULL;
       art->ascii = NULL;
-      art->chararr = NULL;
+      art->charArr = NULL;
 
       return;
     }
 
   FREE(art->fontName);
-  FREE(art->chararr);
+  FREE(art->charArr);
   FREE(art->ascii);
   FREE(art->loadFn);
 
@@ -590,21 +590,21 @@ static int render(AsciiArt *art, const char *ascii, char *color)
   int iFound = 0;
 
   if (NULL == art) return 1;
-  if (NULL == art->ascii || NULL == art->chararr) return 1;
+  if (NULL == art->ascii || NULL == art->charArr) return 1;
 
-  int jLen = (int)strlen(art->chararr);
+  int jLen = (int)strlen(art->charArr);
   if (jLen == 0) return 1;
 
   if (NULL == ascii || '\0' == *ascii) /* print all ascii-art */
-      tmpAscii = art->chararr;
+      tmpAscii = art->charArr;
   else
     {
-      /* check all the ascii exists in art->chararr */
+      /* check all the ascii exists in art->charArr */
       tmpAscii = (char *)ascii;
 
       for (j = 0; j < strlen(ascii); j++)
         {
-          if (NULL == strchr(art->chararr, ascii[j]))
+          if (NULL == strchr(art->charArr, ascii[j]))
             {
               fprintf(stderr, "char<%c> not found in ascii-art!\n", ascii[j]);
               return 1;
@@ -628,7 +628,7 @@ static int render(AsciiArt *art, const char *ascii, char *color)
     {
       for (j = 0; j < jLen; j++)
         {
-          if (tmpAscii[i] == art->chararr[j])
+          if (tmpAscii[i] == art->charArr[j])
             {
               iFound = 1;
               break;
@@ -735,19 +735,19 @@ static int map(AsciiArt *art, AsciiArt *art2, const char *from, const char *to)
       return 1;
     }
 
-  if (NULL == from) /* map all art's chararr to art2's chararr */
+  if (NULL == from) /* map all art's charArr to art2's charArr */
     {
       /* 'to' parameter will be ignored */
 
-      iLenFrom = (int)strlen(art->chararr);
-      iLenTo = (int)strlen(art2->chararr);
+      iLenFrom = (int)strlen(art->charArr);
+      iLenTo = (int)strlen(art2->charArr);
       if (iLenFrom != iLenTo)
         {
-          fprintf(stderr, "art's chararr length not equal to art2's chararr length.\n");
+          fprintf(stderr, "art's charArr length not equal to art2's charArr length.\n");
           return 1;
         }
 
-      toCharPtr = art2->chararr;
+      toCharPtr = art2->charArr;
     }
   else if ('\0' == *from)
     {
@@ -784,7 +784,7 @@ static int map(AsciiArt *art, AsciiArt *art2, const char *from, const char *to)
   art->nMapInfoCount = iLenFrom;
 
   /* map all */
-  if (toCharPtr == art2->chararr)
+  if (toCharPtr == art2->charArr)
     {
       for (i = 0; i < iLenFrom; i++)
         {
@@ -805,9 +805,9 @@ static int map(AsciiArt *art, AsciiArt *art2, const char *from, const char *to)
 #if 0
 printf("map: src[%c]===>dest[%c]\n", from[i], toCharPtr[i]);
 #endif
-      for (j = 0; j < strlen(art2->chararr); j++)
+      for (j = 0; j < strlen(art2->charArr); j++)
         {
-          if ( toCharPtr[i] == art2->chararr[j])
+          if ( toCharPtr[i] == art2->charArr[j])
             {
               art->mapInfo[i].destIdx = j;
               break;
@@ -832,7 +832,7 @@ static void getCharInfo(AsciiArt *art, AsciiArt *art2, char c,
   /* check char is in which art */
   *inWhichArt = 1;
   tmpArt = art;
-  iCharArrLen = (int)strlen(art->chararr);
+  iCharArrLen = (int)strlen(art->charArr);
   tmpC = c;
 
   for (i = 0; i < art->nMapInfoCount; i++)
@@ -842,7 +842,7 @@ static void getCharInfo(AsciiArt *art, AsciiArt *art2, char c,
           *inWhichArt = 2; /* char is in art2 */
           tmpC = art->mapInfo[i].dest;
           tmpArt = art2;
-          iCharArrLen = (int)strlen(art2->chararr);
+          iCharArrLen = (int)strlen(art2->charArr);
           break;
         }
     } /* end for */
@@ -850,7 +850,7 @@ static void getCharInfo(AsciiArt *art, AsciiArt *art2, char c,
   /* check char's index in art/art2. */
   for (i = 0; i < iCharArrLen; i++)
     {
-      if (tmpC == tmpArt->chararr[i])
+      if (tmpC == tmpArt->charArr[i])
         {
           *charIdx = i;
           break;
@@ -922,12 +922,12 @@ static int mapRender(AsciiArt *art, AsciiArt *art2, const char *ascii, char *col
           if (inWhichArt == 2) /* in art2 */
             {
               ptr = art2->ascii; /* reset */
-              jLen = (int)strlen(art2->chararr);
+              jLen = (int)strlen(art2->charArr);
             }
           else if (inWhichArt == 1) /* in art */
             {
               ptr = art->ascii; /* reset */
-              jLen = (int)strlen(art->chararr);
+              jLen = (int)strlen(art->charArr);
             }
 
           ptr += k * (jLen * nCol + 1); /* to next line. +1: for newline */
